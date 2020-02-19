@@ -1,26 +1,36 @@
 public class TicTacToe {
-    private static int size;//имеется размер не меняющийся
-    static public char[][] field;
-    final static char tic = 'x';
-    final static char tac = 'o';
-    final static char toe = ' ';
-    /*static int  left;//оставшиеся клетки
-    boolean check = true;//проверка очередности хода, начинают крестики*/
+    public int size;//имеется размер не меняющийся
+    public char[][] field;
+    final char tic = 'x';
+    final char tac = 'o';
+    final char toe = ' ';
+    private int maxVerticalTic = 0;
+    private int maxVerticalTac = 0;
+    private int maxHorizontalTic = 0;
+    private int maxHorizontalTac = 0;
+    private int maxDiagonalATic = 0;
+    private int maxDiagonalATac = 0;
+    private int maxDiagonalBTic = 0;
+    private int maxDiagonalBTac = 0;
 
-    private TicTacToe(int size) {//конструктор игрового поля
-        TicTacToe.size = size;
+    public TicTacToe (int size) {//конструктор игрового поля
+        this.size = size;
         field = new char[size][size];
-        //left = size*size;
         for (int row = 0; row < size; row++)
             for (int column = 0; column < size; column++)
                 field[row][column] = toe;
+    }
+    public char getCell(int row, int column){
+        if ((row < size) && (column<size) && (row>=0) && (column>=0))
+            return field[row][column];
+        else throw  new IllegalArgumentException("вы вышли за границы поля");
     }
     /* реализовал методы добавления крестика/нолика
      * в методе присутствует проверка на:
      * соответствие размерам
      * можно ли поставить клетку
-     * очерередность(пока убрал за ненадобностью)*/
-    private static void addTic(int row, int column) {//метод добавления крестика
+     */
+    public void addTic(int row, int column) {//метод добавления крестика
         if (row > size) {
             System.out.println("введите a меньшее size");
         } else if (column > size) {
@@ -33,7 +43,7 @@ public class TicTacToe {
         }
     }
 
-    private static void addTac(int row, int column) {//метод добавления крестика
+    public void addTac(int row, int column) {//метод добавления крестика
         if (row > size) {
             System.out.println("введите row меньшее size");
         } else if (column > size) {
@@ -46,7 +56,7 @@ public class TicTacToe {
         }
     }
 
-    private static void addToe(int row, int column) {//метод удаления клектки
+    public void addToe(int row, int column) {//метод удаления клектки
         if (row > size) {
             System.out.println("введите row меньшее size");
         } else if (column > size) {
@@ -57,100 +67,82 @@ public class TicTacToe {
             }
         }
     }
+    public void maximum(){
 
-    private static void/*int*/ findMaxLine(int size) {
-        boolean maxTic = false;
-        boolean maxTac = false;
-        //boolean parity = false;случай когда кол - во крестиков и ноликов совпало. не реализовано
-        int maxVertical = 0;
-        int maxHorizontal = 0;
-        int maxDiagonalA = 0;
-        int maxDiagonalB = 0;
+    }
+
+    public void findMaxLines(int size) {
         int countOfTic = 0;//кол-во крестиков за один проход цикла
         int countOfTac = 0;//кол-во нулей за один проход цикла
         int row = 0;//нужно для прохода цикла по строке
         int column = 0;//нужно для прохода цикла по столбцу
 
-
-        /*не придумал, как сделать адекватно, а не через 3 цикла
-        * сделано для того, чтобы в случае "x o xxx вторая последовательность крестиков не терялась*/
-
-        for (int i=0; i<size; i++) {//обеспечивает движение по столбцам
-            while (row < size) {
-                while ((row < size) && (field[row][i] == tic)) {
-                    //доп условие чтобы исключить выход на границу массива
-                    //должно быть лучше чем break.
+            while ((row < size) && (column < size)) {
+                while ((row < size) && (field[row][column] == tic)) {
                     row++;
                     countOfTic++;
                 }
                 //подсчет ноликов
-                while (((row < size)) && (field[row][i] == tac)) {
+                while (((row < size)) && (field[row][column] == tac)) {
                     row++;
                     countOfTac++;
                 }
                 //если клетка пустая
-                while (((row < size)) && (field[row][i] == toe)) {
+                while (((row < size)) && (field[row][column] == toe)) {
                     row++;
                 }
-
-                if (maxVertical < countOfTic) {
-                    maxVertical = countOfTic;
-                    maxTic = true;
-                    maxTac = false;
-                } else if (maxVertical < countOfTac) {
-                    maxVertical = countOfTac;
-                    maxTac = true;
-                    maxTic = false;
-                }
+                if (countOfTic >= maxHorizontalTic)
+                    maxHorizontalTic = countOfTic;
+                if (countOfTic >= maxHorizontalTac)
+                    maxHorizontalTac = countOfTac;
                 /*перед окончанием цикла мы получим максимальную горизонтальную для случая "крестик - нолик".
                  *при окончании линии ноликов внутренние циклы завершатся. начнется верхний цикл while, поэтому
                  * значения countOfTic countOfTac нужно обнулить */
                 countOfTac = 0;
                 countOfTic = 0;
+                if (row == size) {
+                    column++;
+                    row = 0;
+                }
+                //если мы прошлись по всем элементам в ряду, то мы переходим на след столбец
             }
-        }
+            row = 0;
+            column = 0;
 
-        for (int i=0; i<size; i++) {//обеспечивает движение по строкам
-            while (column < size) {
-                while ((column < size) && (field[i][column] == tic)) {
-                    //доп условие чтобы исключить выход на границу массива
-                    //должно быть лучше чем break.
-                    column++;
-                    countOfTic++;
-                }
-                //подсчет ноликов
-                while (((column < size)) && (field[i][column] == tac)) {
-                    column++;
-                    countOfTac++;
-                }
-                //если клетка пустая
-                while (((column < size)) && (field[i][column] == toe)) {
-                    column++;
-                }
-
-                if (maxHorizontal < countOfTic) {
-                    maxHorizontal = countOfTic;
-                    maxTic = true;
-                    maxTac = false;
-                } else if (maxHorizontal < countOfTac) {
-                    maxHorizontal = countOfTac;
-                    maxTac = true;
-                    maxTic = false;
-                }
-                /*перед окончанием цикла мы получим максимальную вертикальную для случая "крестик - нолик".
-                 *при окончании линии ноликов внутренние циклы завершатся. начнется верхний цикл while, поэтому
-                 * значения countOfTic countOfTac нужно обнулить */
-                countOfTac = 0;
-                countOfTic = 0;
+        while ((column < size) && (row < size)) {
+            while ((column < size) && (field[row][column] == tic)) {
+                column++;
+                countOfTic++;
             }
+            //подсчет ноликов
+            while (((column < size)) && (field[row][column] == tac)) {
+                column++;
+                countOfTac++;
+            }
+            //если клетка пустая
+            while (((column < size)) && (field[row][column] == toe)) {
+                column++;
+            }
+            if (countOfTic >= maxVerticalTic)
+                maxVerticalTic = countOfTic;
+            if (countOfTic >= maxVerticalTac)
+                maxVerticalTac = countOfTac;
+            /*перед окончанием цикла мы получим максимальную горизонтальную для случая "крестик - нолик".
+             *при окончании линии ноликов внутренние циклы завершатся. начнется верхний цикл while, поэтому
+             * значения countOfTic countOfTac нужно обнулить */
+            countOfTac = 0;
+            countOfTic = 0;
+            if (column == size) {
+                row++;
+                column = 0;
+            }
+            //если мы прошлись по всем элементам в столбце, то мы переходим на след строку
         }
-
         row = 0;
         column = 0;
-        //обнуление для диагонали начинающейся с верхнего левого угла
-        while ((row < size)&&(column < size)) {
-            while ((row < size)&&(column < size) && (field[row][column] == tic)) {
-                //доп условие чтобы исключить выход на границу массива
+
+        while ((row < size) && (column < size)) {
+            while ((row < size) && (column < size) && (field[row][column] == tic)) {
                 row++;
                 column++;
                 countOfTic++;
@@ -164,16 +156,10 @@ public class TicTacToe {
                 row++;
                 column++;
             }
-
-            if (maxDiagonalA < countOfTic) {
-                maxDiagonalA = countOfTic;
-                maxTic = true;
-                maxTac = false;
-            } else if (maxDiagonalA < countOfTac){
-                maxDiagonalA = countOfTac;
-                maxTac = true;
-                maxTic = false;
-            }
+            if (countOfTic >= maxDiagonalATic)
+                maxDiagonalATac = countOfTic;
+            if (countOfTic >= maxDiagonalATac)
+                maxDiagonalATic = countOfTac;
             /*перед окончанием цикла мы получим максимальную диагональную для случая "крестик - нолик".
              *при окончании линии ноликов внутренние циклы завершатся. начнется верхний цикл while, поэтому
              * значения countOfTic countOfTac нужно обнулить */
@@ -204,14 +190,11 @@ public class TicTacToe {
                 column--;
             }
 
-            if (maxDiagonalB < countOfTic) {
-                maxDiagonalB = countOfTic;
-                maxTic = true;
-                maxTac = false;
-            } else if (maxDiagonalB < countOfTac){
-                maxDiagonalB = countOfTac;
-                maxTac = true;
-                maxTic = false;
+            if (maxDiagonalBTic < countOfTic) {
+                maxDiagonalBTic = countOfTic;
+            }
+            if (maxDiagonalBTac < countOfTac){
+                maxDiagonalBTac = countOfTac;
             }
             /*перед окончанием цикла мы получим максимальную диагональную для случая "крестик - нолик".
              *при окончании линии ноликов внутренние циклы завершатся. начнется верхний цикл while, поэтому
@@ -219,7 +202,5 @@ public class TicTacToe {
             countOfTac = 0;
             countOfTic = 0;
         }
-       int max = Math.max(Math.max(maxHorizontal,maxVertical),Math.max(maxDiagonalA,maxDiagonalB));
-
     }
 }
