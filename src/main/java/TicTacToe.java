@@ -4,14 +4,14 @@ public class TicTacToe {
     final char tic = 'x';
     final char tac = 'o';
     final char toe = ' ';
-    private int maxVerticalTic = 0;
-    private int maxVerticalTac = 0;
-    private int maxHorizontalTic = 0;
-    private int maxHorizontalTac = 0;
-    private int maxDiagonalATic = 0;
-    private int maxDiagonalATac = 0;
-    private int maxDiagonalBTic = 0;
-    private int maxDiagonalBTac = 0;
+    int maxVerticalTic = 0;
+    int maxVerticalTac = 0;
+    int maxHorizontalTic = 0;
+    int maxHorizontalTac = 0;
+    int maxDiagonalATic = 0;
+    int maxDiagonalATac = 0;
+    int maxDiagonalBTic = 0;
+    int maxDiagonalBTac = 0;
 
     public TicTacToe (int size) {//конструктор игрового поля
         this.size = size;
@@ -20,16 +20,19 @@ public class TicTacToe {
             for (int column = 0; column < size; column++)
                 field[row][column] = toe;
     }
+
     public char getCell(int row, int column){
-        if ((row < size) && (column<size) && (row>=0) && (column>=0))
+        if ((row < size) && (column < size) && (row >= 0) && (column >= 0))
             return field[row][column];
         else throw  new IllegalArgumentException("вы вышли за границы поля");
     }
+
     /* реализовал методы добавления крестика/нолика
      * в методе присутствует проверка на:
      * соответствие размерам
      * можно ли поставить клетку
      */
+
     public void addTic(int row, int column) {//метод добавления крестика
         if (row > size) {
             System.out.println("введите a меньшее size");
@@ -67,8 +70,16 @@ public class TicTacToe {
             }
         }
     }
-    public void maximum(){
-
+    //для заданного символа находит максимальную длину
+    public int maximum(char symbol){
+        switch (symbol){
+            case tic:
+                return Math.max(Math.max(maxHorizontalTic,maxVerticalTic),Math.max(maxDiagonalATic,maxDiagonalBTic));
+            case tac:
+                return Math.max(Math.max(maxHorizontalTac,maxVerticalTac),Math.max(maxDiagonalATac,maxDiagonalBTac));
+            default:
+                throw new IllegalArgumentException("недопустимый символ");
+        }
     }
 
     public void findMaxLines(int size) {
@@ -78,17 +89,17 @@ public class TicTacToe {
         int column = 0;//нужно для прохода цикла по столбцу
 
             while ((row < size) && (column < size)) {
-                while ((row < size) && (field[row][column] == tic)) {
+                while (getCell(row,column) == tic) {
                     row++;
                     countOfTic++;
                 }
                 //подсчет ноликов
-                while (((row < size)) && (field[row][column] == tac)) {
+                while (getCell(row,column) == tac) {
                     row++;
                     countOfTac++;
                 }
                 //если клетка пустая
-                while (((row < size)) && (field[row][column] == toe)) {
+                while (getCell(row,column) == toe) {
                     row++;
                 }
                 if (countOfTic >= maxHorizontalTic)
@@ -110,19 +121,20 @@ public class TicTacToe {
             column = 0;
 
         while ((column < size) && (row < size)) {
-            while ((column < size) && (field[row][column] == tic)) {
+            while (getCell(row,column) == tic) {
                 column++;
                 countOfTic++;
             }
             //подсчет ноликов
-            while (((column < size)) && (field[row][column] == tac)) {
+            while (getCell(row,column) == tac) {
                 column++;
                 countOfTac++;
             }
             //если клетка пустая
-            while (((column < size)) && (field[row][column] == toe)) {
+            while (getCell(row,column) == toe) {
                 column++;
             }
+
             if (countOfTic >= maxVerticalTic)
                 maxVerticalTic = countOfTic;
             if (countOfTic >= maxVerticalTac)
@@ -170,8 +182,8 @@ public class TicTacToe {
         row=0;
         column = size-1;
         //для подсчета диагонали с нижнего левого угла
-        while ((row < size) && (column > -1)) {
-            while ((row < size)&&(column > -1) && (field[row][column] == tic)) {
+        while ((row < size) && (column >= 0)) {
+            while (getCell(row,column) == tic) {
                 //доп условие чтобы исключить выход на границу массива
                 //не уверен, что лучше чем break.
                 row++;
@@ -179,13 +191,13 @@ public class TicTacToe {
                 countOfTic++;
             }
 
-            while ((row < size) && (column > -1) && (field[row][column] == tac)) {
+            while (getCell(row,column) == tac) {
                 row++;
                 column--;
                 countOfTac++;
             }
 
-            while ((row < size) && (column > -1) && (field[row][column] == toe)) {
+            while (getCell(row,column) == toe) {
                 row++;
                 column--;
             }
