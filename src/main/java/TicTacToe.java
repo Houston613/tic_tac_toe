@@ -1,17 +1,13 @@
 public class TicTacToe {
     public int size;//имеется размер не меняющийся
     public char[][] field;
-    final char tic = 'x';
-    final char tac = 'o';
-    final char toe = ' ';
-    int maxVerticalTic = 0;
-    int maxVerticalTac = 0;
-    int maxHorizontalTic = 0;
-    int maxHorizontalTac = 0;
-    int maxDiagonalATic = 0;
-    int maxDiagonalATac = 0;
-    int maxDiagonalBTic = 0;
-    int maxDiagonalBTac = 0;
+    public static final char tic = 'x';
+    public static final char tac = 'o';
+    public static final char toe = ' ';
+    int maxHorizontal = 0;
+    int maxVertical = 0;
+    int maxDiagonalA = 0;
+    int maxDiagonalB = 0;
 
     public TicTacToe (int size) {//конструктор игрового поля
         this.size = size;
@@ -27,192 +23,144 @@ public class TicTacToe {
         else throw  new IllegalArgumentException("вы вышли за границы поля");
     }
 
-    /* реализовал методы добавления крестика/нолика
-     * в методе присутствует проверка на:
-     * соответствие размерам
-     * можно ли поставить клетку
-     */
-
-    public void addTic(int row, int column) {//метод добавления крестика
+    public void addTic(int row, int column) {
         if (row > size) {
-            System.out.println("введите a меньшее size");
+            throw new IllegalArgumentException("выход за границы");
         } else if (column > size) {
-            System.out.println("введите b меньшее size");
+            throw new IllegalArgumentException("выход за границы");
         } else {
             if (field[row][column] == toe) {
                 field[row][column] = tic;
             } else
-                System.out.println("Поле занято");
+                throw new IllegalArgumentException("поле занято");
         }
     }
 
-    public void addTac(int row, int column) {//метод добавления крестика
+    public void addTac(int row, int column) {
         if (row > size) {
-            System.out.println("введите row меньшее size");
+            throw new IllegalArgumentException("выход за границы");
         } else if (column > size) {
-            System.out.println("введите column меньшее size");
+            throw new IllegalArgumentException("выход за границы");
         } else {
             if (field[row][column] == toe) {
                 field[row][column] = tac;
             } else
-                System.out.println("Поле занято");
+                throw new IllegalArgumentException("поле занято");
         }
     }
 
-    public void addToe(int row, int column) {//метод удаления клектки
+    public void addToe(int row, int column) {
         if (row > size) {
-            System.out.println("введите row меньшее size");
+            throw new IllegalArgumentException("выход за границы");
         } else if (column > size) {
-            System.out.println("введите column меньшее size");
+            throw new IllegalArgumentException("выход за границы");
         } else {
             if (field[row][column] != toe) {
                 field[row][column] = toe;
             }
         }
     }
-    //для заданного символа находит максимальную длину
-    public int maximum(char symbol){
-        switch (symbol){
-            case tic:
-                return Math.max(Math.max(maxHorizontalTic,maxVerticalTic),Math.max(maxDiagonalATic,maxDiagonalBTic));
-            case tac:
-                return Math.max(Math.max(maxHorizontalTac,maxVerticalTac),Math.max(maxDiagonalATac,maxDiagonalBTac));
-            default:
-                throw new IllegalArgumentException("недопустимый символ");
-        }
-    }
+    public int findMaxLines(char symbol) {
+        //выбираем символ, считаем для него максимальные линии
+        if ((symbol== tic)||(symbol== tac)) {
+            int countOfSymbol = 0;//комбинация символов
+            int row = 0;//нужно для прохода цикла по строке
+            int column = 0;//нужно для прохода цикла по столбцу
 
-    public void findMaxLines(int size) {
-        int countOfTic = 0;//кол-во крестиков за один проход цикла
-        int countOfTac = 0;//кол-во нулей за один проход цикла
-        int row = 0;//нужно для прохода цикла по строке
-        int column = 0;//нужно для прохода цикла по столбцу
-
-            while ((row < size) && (column < size)) {
-                while (getCell(row,column) == tic) {
+            while ((row < size) && (column < size) && (row >= 0) && (column >= 0)) {
+                while (getCell(row, column) == symbol) {
                     row++;
-                    countOfTic++;
+                    countOfSymbol++;
+                    if ((row == size)||(column==size)){
+                        column++;
+                        row = 0;
+                    }
                 }
-                //подсчет ноликов
-                while (getCell(row,column) == tac) {
+                while (getCell(row, column) != symbol) {
                     row++;
-                    countOfTac++;
+                    if ((row == size)||(column==size)){
+                        column++;
+                        row = 0;
+                    }
                 }
-                //если клетка пустая
-                while (getCell(row,column) == toe) {
-                    row++;
-                }
-                if (countOfTic >= maxHorizontalTic)
-                    maxHorizontalTic = countOfTic;
-                if (countOfTic >= maxHorizontalTac)
-                    maxHorizontalTac = countOfTac;
-                /*перед окончанием цикла мы получим максимальную горизонтальную для случая "крестик - нолик".
-                 *при окончании линии ноликов внутренние циклы завершатся. начнется верхний цикл while, поэтому
-                 * значения countOfTic countOfTac нужно обнулить */
-                countOfTac = 0;
-                countOfTic = 0;
-                if (row == size) {
-                    column++;
-                    row = 0;
-                }
-                //если мы прошлись по всем элементам в ряду, то мы переходим на след столбец
+                maxHorizontal = Math.max(countOfSymbol, maxHorizontal);
+                countOfSymbol = 0;
             }
             row = 0;
             column = 0;
 
-        while ((column < size) && (row < size)) {
-            while (getCell(row,column) == tic) {
-                column++;
-                countOfTic++;
+            while ((row < size) && (column < size) && (row >= 0) && (column >= 0)) {
+                while (getCell(row, column) == symbol) {
+                    column++;
+                    countOfSymbol++;
+                    if (column == size){
+                        row++;
+                        column = 0;
+                    }
+                }
+                while (getCell(row, column) != symbol) {
+                    column++;
+                    if (column == size){
+                        row++;
+                        column = 0;
+                    }
+                }
+                maxVertical = Math.max(countOfSymbol, maxVertical);
+                countOfSymbol = 0;
             }
-            //подсчет ноликов
-            while (getCell(row,column) == tac) {
-                column++;
-                countOfTac++;
-            }
-            //если клетка пустая
-            while (getCell(row,column) == toe) {
-                column++;
-            }
+            row = 0;
+            column = 0;
 
-            if (countOfTic >= maxVerticalTic)
-                maxVerticalTic = countOfTic;
-            if (countOfTic >= maxVerticalTac)
-                maxVerticalTac = countOfTac;
-            /*перед окончанием цикла мы получим максимальную горизонтальную для случая "крестик - нолик".
-             *при окончании линии ноликов внутренние циклы завершатся. начнется верхний цикл while, поэтому
-             * значения countOfTic countOfTac нужно обнулить */
-            countOfTac = 0;
-            countOfTic = 0;
-            if (column == size) {
-                row++;
-                column = 0;
+            while ((row < size) && (column < size) && (row >= 0) && (column >= 0)) {
+                while (getCell(row, column) == symbol) {
+                    row++;
+                    column--;
+                    countOfSymbol++;
+                    if ((row == size)){
+                        break;
+                    }
+                }
+                if ((row == size)){
+                    break;
+                }
+                while (getCell(row, column) != symbol) {
+                    row++;
+                    column--;
+                    if ((row == size)){
+                        break;
+                    }
+                }
+                 maxDiagonalA = Math.max(countOfSymbol, maxDiagonalA);
+                countOfSymbol = 0;
             }
-            //если мы прошлись по всем элементам в столбце, то мы переходим на след строку
+            row = 0;
+            column = size - 1;
+            //для подсчета диагонали с нижнего левого угла
+
+            while ((row < size) && (column < size) && (row >= 0) && (column >= 0)) {
+                while (getCell(row, column) == symbol) {
+                    row++;
+                    column++;
+                    countOfSymbol++;
+                    if ((row == size)){
+                        break;
+                    }
+                }
+                if ((row == size)){
+                    break;
+                }
+                while (getCell(row, column) != symbol) {
+                    row++;
+                    column++;
+                    if ((row == size)){
+                        break;
+                    }
+                }
+                maxDiagonalA = Math.max(countOfSymbol, maxDiagonalA);
+                countOfSymbol = 0;
+            }
+            return Math.max(Math.max(maxHorizontal,maxVertical),Math.max(maxDiagonalA,maxDiagonalB));
         }
-        row = 0;
-        column = 0;
-
-        while ((row < size) && (column < size)) {
-            while ((row < size) && (column < size) && (field[row][column] == tic)) {
-                row++;
-                column++;
-                countOfTic++;
-            }
-            while ((row < size) && (column < size) && (field[row][column] == tac)) {
-                row++;
-                column++;
-                countOfTac++;
-            }
-            while ((row < size) && (column < size) && (field[row][column] == toe)) {
-                row++;
-                column++;
-            }
-            if (countOfTic >= maxDiagonalATic)
-                maxDiagonalATac = countOfTic;
-            if (countOfTic >= maxDiagonalATac)
-                maxDiagonalATic = countOfTac;
-            /*перед окончанием цикла мы получим максимальную диагональную для случая "крестик - нолик".
-             *при окончании линии ноликов внутренние циклы завершатся. начнется верхний цикл while, поэтому
-             * значения countOfTic countOfTac нужно обнулить */
-            countOfTac = 0;
-            countOfTic = 0;
-        }
-
-        row=0;
-        column = size-1;
-        //для подсчета диагонали с нижнего левого угла
-        while ((row < size) && (column >= 0)) {
-            while (getCell(row,column) == tic) {
-                //доп условие чтобы исключить выход на границу массива
-                //не уверен, что лучше чем break.
-                row++;
-                column--;
-                countOfTic++;
-            }
-
-            while (getCell(row,column) == tac) {
-                row++;
-                column--;
-                countOfTac++;
-            }
-
-            while (getCell(row,column) == toe) {
-                row++;
-                column--;
-            }
-
-            if (maxDiagonalBTic < countOfTic) {
-                maxDiagonalBTic = countOfTic;
-            }
-            if (maxDiagonalBTac < countOfTac){
-                maxDiagonalBTac = countOfTac;
-            }
-            /*перед окончанием цикла мы получим максимальную диагональную для случая "крестик - нолик".
-             *при окончании линии ноликов внутренние циклы завершатся. начнется верхний цикл while, поэтому
-             * значения countOfTic countOfTac нужно обнулить */
-            countOfTac = 0;
-            countOfTic = 0;
-        }
+        else throw new IllegalArgumentException("Недопустимый символ");
     }
 }
