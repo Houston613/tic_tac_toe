@@ -22,5 +22,7 @@ class TicTacToeTest {
         fieldForTest.addTic(0,1);
         fieldForTest.addTic(0,2);
         fieldForTest.addTic(0,3);
+        assertEquals(4,fieldForTest.findMaxLines(TicTacToe.tic));
+        assertEquals(0,fieldForTest.findMaxLines(TicTacToe.tac));
     }
 }
