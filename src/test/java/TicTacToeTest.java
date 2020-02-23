@@ -24,5 +24,8 @@ class TicTacToeTest {
         fieldForTest.addTic(0,3);
         assertEquals(4,fieldForTest.findMaxLines(TicTacToe.tic));
         assertEquals(0,fieldForTest.findMaxLines(TicTacToe.tac));
+        fieldForTest.addTac(1,1);
+        assertEquals(1,fieldForTest.findMaxLines(TicTacToe.tac));
+        assertThrows(IllegalArgumentException.class,()->fieldForTest.findMaxLines(TicTacToe.toe));
     }
 }
