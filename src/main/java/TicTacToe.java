@@ -105,12 +105,12 @@ public class TicTacToe {
             while (tester(row,column)) {
                 while (tester(row,column)&&getCell(row, column) == symbol) {
                     row++;
-                    column--;
+                    column++;
                     countOfSymbol++;
                 }
                 while (tester(row,column)&&getCell(row, column) != symbol) {
                     row++;
-                    column--;
+                    column++;
                 }
                  maxDiagonalA = Math.max(countOfSymbol, maxDiagonalA);
                 countOfSymbol = 0;
@@ -122,14 +122,14 @@ public class TicTacToe {
             while (tester(row,column)) {
                 while (tester(row,column)&&getCell(row, column) == symbol) {
                     row++;
-                    column++;
+                    column--;
                     countOfSymbol++;
                 }
                 while (tester(row,column)&&getCell(row, column) != symbol) {
                     row++;
-                    column++;
+                    column--;
                 }
-                maxDiagonalA = Math.max(countOfSymbol, maxDiagonalA);
+                maxDiagonalB = Math.max(countOfSymbol, maxDiagonalB);
                 countOfSymbol = 0;
             }
             return Math.max(Math.max(maxHorizontal,maxVertical),Math.max(maxDiagonalA,maxDiagonalB));

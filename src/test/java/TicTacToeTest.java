@@ -28,4 +28,17 @@ class TicTacToeTest {
         assertEquals(1,fieldForTest.findMaxLines(TicTacToe.tac));
         assertThrows(IllegalArgumentException.class,()->fieldForTest.findMaxLines(TicTacToe.toe));
     }
+    @Test
+    void diagonals(){
+        TicTacToe fieldForTest = new TicTacToe(3);
+        fieldForTest.addTic(0,0);
+        fieldForTest.addTic(1,1);
+        fieldForTest.addTic(2,2);
+        assertEquals(3,fieldForTest.findMaxLines(TicTacToe.tic));
+        fieldForTest.addTac(0,2);
+        fieldForTest.addToe(1,1);
+        fieldForTest.addTac(1,1);
+        fieldForTest.addTac(2,0);
+        assertEquals(3,fieldForTest.findMaxLines(TicTacToe.tac));
+    }
 }
