@@ -1,62 +1,61 @@
+package FieldForTTT;
+
+import static java.lang.Math.max;
+
 public class TicTacToe {
     public int size;//имеется размер не меняющийся
-    public char[][] field;
-    public static final char tic = 'x';
-    public static final char tac = 'o';
-    public static final char toe = ' ';
+    private Symbols[][] field;
+
     public TicTacToe (int size) {//конструктор игрового поля
         this.size = size;
-        field = new char[size][size];
+        field = new Symbols[size][size];
         for (int row = 0; row < size; row++)
             for (int column = 0; column < size; column++)
-                field[row][column] = toe;
+                field[row][column] = Symbols.VOID ;
     }
 
-    public char getCell(int row, int column){
-        if (tester(row, column))
-            return field[row][column];
-        else throw  new IllegalArgumentException("вы вышли за границы поля");
+    public Symbols getCell(int row, int column){
+        tester(row, column);//в случае ошибки тестер кинет ошибку и все "сломается как нужно"
+        return field[row][column];
     }
+
     public boolean tester(int row, int column) {
+        if ((row < size) && (column < size) && (row >= 0) && (column >= 0))
+            return true;
+        else throw new IllegalArgumentException("Вас поймали за пересечение границы");
+    }
+    public boolean liteTester(int row, int column) {
         return (row < size) && (column < size) && (row >= 0) && (column >= 0);
     }
 
-    public void addTic(int row, int column) {
-        if (tester(row, column)){
-            if (field[row][column] == toe) {
-                field[row][column] = tic;
-            } else
-                throw new IllegalArgumentException("поле занято");
-        } else throw new IllegalArgumentException("вы вышли за границы");
+   // не понимаю, как иначе засунуть throw в тестер, тк тогда он ломает циклы
+
+    public void addSymbol(int row, int column, Symbols symbol) {
+        tester(row, column);
+            if ((symbol == Symbols.X) && (field[row][column] == Symbols.VOID))
+                field[row][column] = Symbols.X;
+            if ((symbol == Symbols.O) && (field[row][column] == Symbols.VOID))
+                field[row][column] = Symbols.O;
+            //теперь если клетка не пустая то просто ничего не произойдет. надеюсь правильно понял
     }
 
-    public void addTac(int row, int column) {
-        if (tester(row, column)){
-            if (field[row][column] == toe) {
-                field[row][column] = tac;
-            } else
-                throw new IllegalArgumentException("поле занято");
-        } else throw new IllegalArgumentException("вы вышли за границы");
-    }
+    public void Clear(int row, int column) {
+        if (tester(row, column))
+            field[row][column] = Symbols.VOID;
+        }
 
-    public void addToe(int row, int column) {
-        if (tester(row, column)) {
-            field[row][column] = toe;
-        }else throw new IllegalArgumentException("вы вышли за границы");
-    }
-
-    public int findMaxLines(char symbol) {
+    public int findMaxLines(Symbols symbol) {
         int maxHorizontal = 0;
         int maxVertical = 0;
         int maxDiagonalA = 0;
         int maxDiagonalB = 0;
         //выбираем символ, считаем для него максимальные линии
-        if ((symbol== tic)||(symbol== tac)) {
+        if ((symbol == Symbols.X)||(symbol == Symbols.O)) {
             int countOfSymbol = 0;//комбинация символов
             int row = 0;//нужно для прохода цикла по строке
             int column = 0;//нужно для прохода цикла по столбцу
-            while (tester(row,column)) {
-                while (tester(row,column)&&(getCell(row, column) == symbol)) {
+            while (liteTester(row,column)) {
+                while (liteTester(row,column) && field[row][column] == symbol) {
                     row++;
                     countOfSymbol++;
                     if (row == size) {
@@ -65,7 +64,7 @@ public class TicTacToe {
                         //дополнительная проверка для перехода на след стобик
                     }
                 }
-                while (tester(row,column)&&(getCell(row, column) != symbol)) {
+                while (liteTester(row,column) && field[row][column] != symbol) {
                     row++;
                     if (row == size) {
                         row = 0;
@@ -73,13 +72,15 @@ public class TicTacToe {
                         //дополнительная проверка для перехода на некст строку
                     }
                 }
-                maxHorizontal = Math.max(countOfSymbol, maxHorizontal);
+                maxHorizontal = max(countOfSymbol, maxHorizontal);
                 countOfSymbol = 0;
             }
+
             row = 0;
             column = 0;
-                while (tester(row,column)) {
-                    while (tester(row,column)&&getCell(row, column) == symbol) {
+
+                while (liteTester(row,column)) {
+                    while (liteTester(row,column) && field[row][column] == symbol) {
                         column++;
                         countOfSymbol++;
                         if (column == size) {
@@ -88,7 +89,7 @@ public class TicTacToe {
                             //дополнительная проверка для перехода на след стобик
                         }
                     }
-                    while (tester(row,column)&&getCell(row, column) != symbol) {
+                    while (liteTester(row,column) && field[row][column] != symbol) {
                         column++;
                         if (column == size) {
                             row++;
@@ -96,43 +97,45 @@ public class TicTacToe {
                             //дополнительная проверка для перехода на след стобик
                         }
                     }
-                    maxVertical = Math.max(countOfSymbol, maxVertical);
+                    maxVertical = max(countOfSymbol, maxVertical);
                     countOfSymbol = 0;
                 }
+
             row = 0;
             column = 0;
 
-            while (tester(row,column)) {
-                while (tester(row,column)&&getCell(row, column) == symbol) {
+            while (liteTester(row,column)) {
+                while (liteTester(row,column) && field[row][column] == symbol) {
                     row++;
                     column++;
                     countOfSymbol++;
                 }
-                while (tester(row,column)&&getCell(row, column) != symbol) {
+                while (liteTester(row,column) && field[row][column] != symbol) {
                     row++;
                     column++;
                 }
-                 maxDiagonalA = Math.max(countOfSymbol, maxDiagonalA);
+                 maxDiagonalA = max(countOfSymbol, maxDiagonalA);
                 countOfSymbol = 0;
             }
+
             row = 0;
             column = size - 1;
             //для подсчета диагонали с нижнего левого угла
 
-            while (tester(row,column)) {
-                while (tester(row,column)&&getCell(row, column) == symbol) {
+            while (liteTester(row,column)) {
+                while (liteTester(row,column) && field[row][column] == symbol) {
                     row++;
                     column--;
                     countOfSymbol++;
                 }
-                while (tester(row,column)&&getCell(row, column) != symbol) {
+                while (liteTester(row,column) && field[row][column] != symbol) {
                     row++;
                     column--;
                 }
-                maxDiagonalB = Math.max(countOfSymbol, maxDiagonalB);
+                maxDiagonalB = max(countOfSymbol, maxDiagonalB);
                 countOfSymbol = 0;
             }
-            return Math.max(Math.max(maxHorizontal,maxVertical),Math.max(maxDiagonalA,maxDiagonalB));
+            return max(max(maxHorizontal,maxVertical), max(maxDiagonalA,maxDiagonalB));
         }
         else throw new IllegalArgumentException("Недопустимый символ");
     }
