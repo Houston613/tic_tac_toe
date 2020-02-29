@@ -10,8 +10,7 @@ class TicTacToeTest {
         TicTacToe fieldForTest = new TicTacToe(3);
         fieldForTest.addSymbol(1,1, Symbols.X);
         assertEquals(Symbols.X, fieldForTest.getCell(1,1));
-        //assertThrows(IllegalArgumentException.class,()-> fieldForTest.addSymbol(4,0, Symbols.X));
-        //assertThrows(IllegalArgumentException.class,()-> fieldForTest.addSymbol(1,1,Symbols.O));
+        assertFalse(fieldForTest.addSymbol(4, 0, Symbols.X));
         fieldForTest.Clear(1,1);
         fieldForTest.addSymbol(1,1,Symbols.O);
         assertEquals(Symbols.O, fieldForTest.getCell(1,1));

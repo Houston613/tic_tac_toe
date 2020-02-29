@@ -1,5 +1,5 @@
 package FieldForTTT;
 public enum Symbols {
-    X(),O(),VOID();
+    X(),O(),VOID(),Error()
 }
 

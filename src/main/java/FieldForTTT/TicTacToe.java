@@ -15,32 +15,30 @@ public class TicTacToe {
     }
 
     public Symbols getCell(int row, int column){
-        tester(row, column);//в случае ошибки тестер кинет ошибку и все "сломается как нужно"
-        return field[row][column];
+        if (liteTester(row, column))
+            return field[row][column];
+        else return Symbols.Error;
     }
 
-    public boolean tester(int row, int column) {
-        if ((row < size) && (column < size) && (row >= 0) && (column >= 0))
-            return true;
-        else throw new IllegalArgumentException("Вас поймали за пересечение границы");
-    }
     public boolean liteTester(int row, int column) {
         return (row < size) && (column < size) && (row >= 0) && (column >= 0);
     }
-
-   // не понимаю, как иначе засунуть throw в тестер, тк тогда он ломает циклы
-
-    public void addSymbol(int row, int column, Symbols symbol) {
-        tester(row, column);
-            if ((symbol == Symbols.X) && (field[row][column] == Symbols.VOID))
+    public boolean addSymbol(int row, int column, Symbols symbol) {
+        boolean check = false;
+        if (getCell(row,column) == Symbols.VOID){
+            if (symbol == Symbols.X){
                 field[row][column] = Symbols.X;
-            if ((symbol == Symbols.O) && (field[row][column] == Symbols.VOID))
+                check = true;
+            }
+            else if (symbol == Symbols.O) {
                 field[row][column] = Symbols.O;
-            //теперь если клетка не пустая то просто ничего не произойдет. надеюсь правильно понял
+                check = true;
+            }
+        }
+        return check;
     }
 
     public void Clear(int row, int column) {
-        if (tester(row, column))
             field[row][column] = Symbols.VOID;
         }
 
@@ -50,12 +48,13 @@ public class TicTacToe {
         int maxDiagonalA = 0;
         int maxDiagonalB = 0;
         //выбираем символ, считаем для него максимальные линии
+
         if ((symbol == Symbols.X)||(symbol == Symbols.O)) {
             int countOfSymbol = 0;//комбинация символов
             int row = 0;//нужно для прохода цикла по строке
             int column = 0;//нужно для прохода цикла по столбцу
             while (liteTester(row,column)) {
-                while (liteTester(row,column) && field[row][column] == symbol) {
+                while (getCell(row,column)!=Symbols.Error && getCell(row,column) == symbol) {
                     row++;
                     countOfSymbol++;
                     if (row == size) {
@@ -64,7 +63,7 @@ public class TicTacToe {
                         //дополнительная проверка для перехода на след стобик
                     }
                 }
-                while (liteTester(row,column) && field[row][column] != symbol) {
+                while (getCell(row,column)!=Symbols.Error && getCell(row,column) != symbol) {
                     row++;
                     if (row == size) {
                         row = 0;
@@ -80,7 +79,7 @@ public class TicTacToe {
             column = 0;
 
                 while (liteTester(row,column)) {
-                    while (liteTester(row,column) && field[row][column] == symbol) {
+                    while ((getCell(row,column)!=Symbols.Error && getCell(row,column) == symbol)) {
                         column++;
                         countOfSymbol++;
                         if (column == size) {
@@ -89,7 +88,7 @@ public class TicTacToe {
                             //дополнительная проверка для перехода на след стобик
                         }
                     }
-                    while (liteTester(row,column) && field[row][column] != symbol) {
+                    while ((getCell(row,column)!=Symbols.Error && getCell(row,column) != symbol)) {
                         column++;
                         if (column == size) {
                             row++;
@@ -105,12 +104,12 @@ public class TicTacToe {
             column = 0;
 
             while (liteTester(row,column)) {
-                while (liteTester(row,column) && field[row][column] == symbol) {
+                while ((getCell(row,column)!=Symbols.Error && getCell(row,column) == symbol)) {
                     row++;
                     column++;
                     countOfSymbol++;
                 }
-                while (liteTester(row,column) && field[row][column] != symbol) {
+                while ((getCell(row,column)!=Symbols.Error && getCell(row,column) != symbol)) {
                     row++;
                     column++;
                 }
@@ -123,12 +122,12 @@ public class TicTacToe {
             //для подсчета диагонали с нижнего левого угла
 
             while (liteTester(row,column)) {
-                while (liteTester(row,column) && field[row][column] == symbol) {
+                while ((getCell(row,column)!=Symbols.Error && getCell(row,column) == symbol)) {
                     row++;
                     column--;
                     countOfSymbol++;
                 }
-                while (liteTester(row,column) && field[row][column] != symbol) {
+                while ((getCell(row,column)!=Symbols.Error && getCell(row,column) != symbol)) {
                     row++;
                     column--;
                 }
