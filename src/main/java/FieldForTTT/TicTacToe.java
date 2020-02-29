@@ -120,7 +120,6 @@ public class TicTacToe {
             row = 0;
             column = size - 1;
             //для подсчета диагонали с нижнего левого угла
-
             while (liteTester(row,column)) {
                 while ((getCell(row,column)!=Symbols.Error && getCell(row,column) == symbol)) {
                     row++;
