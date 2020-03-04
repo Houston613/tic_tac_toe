@@ -51,6 +51,7 @@ public class TicTacToe {
             maxTic = max(maxTic, countOfSymbol);
         if (symbol == Symbols.O)
             maxTac = max(maxTac, countOfSymbol);
+        countOfSymbol = 0;
     }
 
     public void findMaxVertical(Symbols symbol) {
@@ -78,7 +79,6 @@ public class TicTacToe {
                 }
             }
             maximum(symbol,countOfSymbol);
-            countOfSymbol = 0;
         }
     }
     public void findMaxHorizontal(Symbols symbol) {
@@ -103,11 +103,8 @@ public class TicTacToe {
                         column = 0;
                     }
                 }
-                if (symbol == Symbols.X)
-                    maxTic = max(maxTic, countOfSymbol);
-                if (symbol == Symbols.O)
-                    maxTac = max(maxTac, countOfSymbol);
-                countOfSymbol = 0;
+            maximum(symbol,countOfSymbol);
+
         }
     }
     public enum Diagonal{
@@ -148,7 +145,6 @@ public class TicTacToe {
                     }
                 }
                 while ((getCell(row, column) != Symbols.Error && field[row][column] != symbol)) {
-                    countOfSymbol++;
                     if (check) {
                         column++; //двигаемся вправо всегда при true
                         if (diagonal == Diagonal.right)
@@ -165,7 +161,6 @@ public class TicTacToe {
                 }
             }
             maximum(symbol,countOfSymbol);
-            countOfSymbol = 0;
         }
     }
 
