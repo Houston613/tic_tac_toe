@@ -11,7 +11,7 @@ class TicTacToeTest {
         fieldForTest.addSymbol(1,1, Symbols.X);
         assertEquals(Symbols.X, fieldForTest.getCell(1,1));
         assertFalse(fieldForTest.addSymbol(4, 0, Symbols.X));
-        fieldForTest.Clear(1,1);
+        fieldForTest.clear(1,1);
         fieldForTest.addSymbol(1,1,Symbols.O);
         assertEquals(Symbols.O, fieldForTest.getCell(1,1));
     }
@@ -26,6 +26,11 @@ class TicTacToeTest {
         assertEquals(0,fieldForTest.findMaxLines(Symbols.O));
         fieldForTest.addSymbol(1,1, Symbols.O);
         assertEquals(1,fieldForTest.findMaxLines(Symbols.O));
+        fieldForTest.clear(0,0);
+        fieldForTest.addSymbol(0,0, Symbols.O);
+        fieldForTest.addSymbol(2,2, Symbols.O);
+        fieldForTest.addSymbol(3,3, Symbols.O);
+        assertEquals(4,fieldForTest.findMaxLines(Symbols.O));
         assertThrows(IllegalArgumentException.class,()->fieldForTest.findMaxLines(Symbols.VOID));
     }
 

@@ -3,10 +3,13 @@ package FieldForTTT;
 import static java.lang.Math.max;
 
 public class TicTacToe {
-    public int size;//имеется размер не меняющийся
+    public int size;
     private Symbols[][] field;
+    int maxTic = 0;
+    int maxTac = 0;
+    //осознал что надо считать последовательности для крестиков и ноликов, а не просто самую большую
 
-    public TicTacToe (int size) {//конструктор игрового поля
+    public TicTacToe (int size) {
         this.size = size;
         field = new Symbols[size][size];
         for (int row = 0; row < size; row++)
@@ -23,6 +26,7 @@ public class TicTacToe {
     public boolean liteTester(int row, int column) {
         return (row < size) && (column < size) && (row >= 0) && (column >= 0);
     }
+
     public boolean addSymbol(int row, int column, Symbols symbol) {
         boolean check = false;
         if (getCell(row,column) == Symbols.VOID){
@@ -38,103 +42,144 @@ public class TicTacToe {
         return check;
     }
 
-    public void Clear(int row, int column) {
+    public void clear(int row, int column) {
             field[row][column] = Symbols.VOID;
+    }
+    //разделил методы нахождения, а то так не очень удобно все в куче держать
+    public void maximum(Symbols symbol, int countOfSymbol){
+        if (symbol == Symbols.X)
+            maxTic = max(maxTic, countOfSymbol);
+        if (symbol == Symbols.O)
+            maxTac = max(maxTac, countOfSymbol);
+    }
+
+    public void findMaxVertical(Symbols symbol) {
+        int row = 0;
+        int column = 0;
+        int countOfSymbol = 0;
+
+        while (liteTester(row, column)) {
+            while ((getCell(row, column) != Symbols.Error)&&(getCell(row, column) == symbol)) {
+                row++;
+                countOfSymbol++;
+                if (row == size) {
+                    column++;
+                    row = 0;
+                    break;
+                    //нужно закончить цикл на случай когда в след столбце такой же символ как и в конце пред. столбца.
+                }
+            }
+
+            while ((getCell(row, column) != Symbols.Error)&&(getCell(row, column)!= symbol)) {
+                row++;
+                if (row == size) {
+                    row=0;
+                    column++;
+                }
+            }
+            maximum(symbol,countOfSymbol);
+            countOfSymbol = 0;
         }
+    }
+    public void findMaxHorizontal(Symbols symbol) {
+        int row = 0;
+        int column = 0;
+        int countOfSymbol = 0;
+        while (liteTester(row, column)) {
+            while ((getCell(row, column) != Symbols.Error && field[row][column] == symbol)) {
+                column++;
+                countOfSymbol++;
+                if (column == size) {
+                    column = 0;
+                    row++;
+                    break;
+                    //нужно закончить цикл на случай когда в след столбце такой же символ как и в конце пред. столбца.}
+                }
+            }
+                while ((getCell(row, column) != Symbols.Error)&&(getCell(row, column) != symbol)) {
+                    column++;
+                    if (column == size) {
+                        row++;
+                        column = 0;
+                    }
+                }
+                if (symbol == Symbols.X)
+                    maxTic = max(maxTic, countOfSymbol);
+                if (symbol == Symbols.O)
+                    maxTac = max(maxTac, countOfSymbol);
+                countOfSymbol = 0;
+        }
+    }
+    public enum Diagonal{
+        left(),right();
+    }
+    /** enum и check позволяют описать 4 возможных состояния в одном методе
+     * right check true - направление вправо вниз, считается нижняя часть
+     * left check true - направление вправо вверх
+     * right check false - направление влево вверх - верхняя
+     * left check false - направление влево вниз
+    **/
+    public void findMaxDiagonal(Symbols symbol, boolean check, Diagonal diagonal) {
+        int countOfSymbol = 0;
+        //если check true, считаем диагонали нижнего куска
+        //иначе счиатем диагонали верхнего
+        for (int y = 0; y < size; y++) {
+            // с фором удобнее двигаться по диагоналям, не нужно умно перемещаться обратно в зависимости от позиции
+            // (умно через счетчик внутри цикла у меня не заработало и это было некрасиво)
+            int column = 0;
+            int row = y;
+            if (!check)
+                column = size - 1;//верхний кусок считаеем с правого верхнего угла
+            while (liteTester(row, column)) {
+                while ((getCell(row, column) != Symbols.Error && field[row][column] == symbol)) {
+                    countOfSymbol++;
+                    if (check) {
+                        column++; //двигаемся вправо всегда при true
+                        if (diagonal == Diagonal.right)
+                            row++;//вниз
+                        else if (diagonal == Diagonal.left)
+                            row--;//вверх
+                    } else {
+                        column--;//влево в любом случае
+                        if (diagonal == Diagonal.right)
+                            row--;//вниз
+                        else if (diagonal == Diagonal.left)
+                            row++;//вверх
+                    }
+                }
+                while ((getCell(row, column) != Symbols.Error && field[row][column] != symbol)) {
+                    countOfSymbol++;
+                    if (check) {
+                        column++; //двигаемся вправо всегда при true
+                        if (diagonal == Diagonal.right)
+                            row++;//вниз
+                        else if (diagonal == Diagonal.left)
+                            row--;//вверх
+                    } else {
+                        column--;//влево в любом случае
+                        if (diagonal == Diagonal.right)
+                            row--;//вниз
+                        else if (diagonal == Diagonal.left)
+                            row++;//вверх
+                    }
+                }
+            }
+            maximum(symbol,countOfSymbol);
+            countOfSymbol = 0;
+        }
+    }
 
     public int findMaxLines(Symbols symbol) {
-        int maxHorizontal = 0;
-        int maxVertical = 0;
-        int maxDiagonalA = 0;
-        int maxDiagonalB = 0;
-        //выбираем символ, считаем для него максимальные линии
-
         if ((symbol == Symbols.X)||(symbol == Symbols.O)) {
-            int countOfSymbol = 0;//комбинация символов
-            int row = 0;//нужно для прохода цикла по строке
-            int column = 0;//нужно для прохода цикла по столбцу
-            while (liteTester(row,column)) {
-                while (getCell(row,column)!=Symbols.Error && getCell(row,column) == symbol) {
-                    row++;
-                    countOfSymbol++;
-                    if (row == size) {
-                        row = 0;
-                        column++;
-                        //дополнительная проверка для перехода на след стобик
-                    }
-                }
-                while (getCell(row,column)!=Symbols.Error && getCell(row,column) != symbol) {
-                    row++;
-                    if (row == size) {
-                        row = 0;
-                        column++;
-                        //дополнительная проверка для перехода на некст строку
-                    }
-                }
-                maxHorizontal = max(countOfSymbol, maxHorizontal);
-                countOfSymbol = 0;
-            }
-
-            row = 0;
-            column = 0;
-
-                while (liteTester(row,column)) {
-                    while ((getCell(row,column)!=Symbols.Error && getCell(row,column) == symbol)) {
-                        column++;
-                        countOfSymbol++;
-                        if (column == size) {
-                            row++;
-                            column=0;
-                            //дополнительная проверка для перехода на след стобик
-                        }
-                    }
-                    while ((getCell(row,column)!=Symbols.Error && getCell(row,column) != symbol)) {
-                        column++;
-                        if (column == size) {
-                            row++;
-                            column = 0;
-                            //дополнительная проверка для перехода на след стобик
-                        }
-                    }
-                    maxVertical = max(countOfSymbol, maxVertical);
-                    countOfSymbol = 0;
-                }
-
-            row = 0;
-            column = 0;
-
-            while (liteTester(row,column)) {
-                while ((getCell(row,column)!=Symbols.Error && getCell(row,column) == symbol)) {
-                    row++;
-                    column++;
-                    countOfSymbol++;
-                }
-                while ((getCell(row,column)!=Symbols.Error && getCell(row,column) != symbol)) {
-                    row++;
-                    column++;
-                }
-                 maxDiagonalA = max(countOfSymbol, maxDiagonalA);
-                countOfSymbol = 0;
-            }
-
-            row = 0;
-            column = size - 1;
-            //для подсчета диагонали с нижнего левого угла
-            while (liteTester(row,column)) {
-                while ((getCell(row,column)!=Symbols.Error && getCell(row,column) == symbol)) {
-                    row++;
-                    column--;
-                    countOfSymbol++;
-                }
-                while ((getCell(row,column)!=Symbols.Error && getCell(row,column) != symbol)) {
-                    row++;
-                    column--;
-                }
-                maxDiagonalB = max(countOfSymbol, maxDiagonalB);
-                countOfSymbol = 0;
-            }
-            return max(max(maxHorizontal,maxVertical), max(maxDiagonalA,maxDiagonalB));
-        }
-        else throw new IllegalArgumentException("Недопустимый символ");
+            findMaxVertical(symbol);
+            findMaxHorizontal(symbol);
+            findMaxDiagonal(symbol,true, Diagonal.left);
+            findMaxDiagonal(symbol,true, Diagonal.right);
+            findMaxDiagonal(symbol,false, Diagonal.left);
+            findMaxDiagonal(symbol,false, Diagonal.right);
+        }else throw new IllegalArgumentException("Недопустимый символ");
+        if (symbol == Symbols.X)
+            return maxTic;
+        else return maxTac;
     }
 }
