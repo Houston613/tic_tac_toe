@@ -69,7 +69,7 @@ public class TicTacToe {
         int column = 0;
         int countOfSymbol = 0;
         while (liteTester(row, column)) {
-            while ((getCell(row, column) != Symbols.Error && field[row][column] == symbol)) {
+            while (getCell(row, column) != Symbols.Error && (getCell(row, column) == symbol)) {
                 if (check) {
                     column++;
                     countOfSymbol++;
@@ -110,6 +110,7 @@ public class TicTacToe {
 
         }
     }
+
     public enum Diagonal{
         left(),right();
     }
@@ -162,10 +163,9 @@ public class TicTacToe {
                             row++;//вверх
                     }
                 }
+                maximum(symbol,countOfSymbol);
+                countOfSymbol = 0;
             }
-            maximum(symbol,countOfSymbol);
-            countOfSymbol = 0;
-
         }
     }
 
