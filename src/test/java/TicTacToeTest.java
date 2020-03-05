@@ -87,4 +87,28 @@ class TicTacToeTest {
         fieldForTest.addSymbol(2,5, Symbols.O);
         assertEquals(3,fieldForTest.findMaxLines(Symbols.O));
     }
+    @Test
+    void equalsTest(){
+        TicTacToe fieldForTest = new TicTacToe(3);
+        TicTacToe fieldForEquals = new TicTacToe(3);
+        fieldForTest.addSymbol(0,0, Symbols.X);
+        assertNotEquals(fieldForTest,fieldForEquals);
+        fieldForEquals.addSymbol(0,0, Symbols.X);
+        assertEquals(fieldForTest,fieldForEquals);
+    }
+    @Test
+    void toStringTest(){
+        TicTacToe fieldForString = new TicTacToe(2);
+        fieldForString.addSymbol(0,0, Symbols.X);
+        assertEquals("X "+"\n"+"  ",fieldForString.toString());
+    }
+    @Test
+    void hashCodeTest(){
+        TicTacToe hashTestFirst = new TicTacToe(2);
+        hashTestFirst.addSymbol(0,0,Symbols.X);
+        TicTacToe hashTestSecond = new TicTacToe(2);
+        assertNotEquals(hashTestFirst.hashCode(),hashTestSecond.hashCode());
+        hashTestSecond.addSymbol(0,0,Symbols.X);
+        assertEquals(hashTestFirst.hashCode(),hashTestSecond.hashCode());
+    }
 }

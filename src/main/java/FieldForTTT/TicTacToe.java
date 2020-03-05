@@ -1,5 +1,7 @@
 package FieldForTTT;
 
+import java.util.Arrays;
+
 import static java.lang.Math.max;
 
 public class TicTacToe {
@@ -7,6 +9,7 @@ public class TicTacToe {
     private Symbols[][] field;
     int maxTic = 0;
     int maxTac = 0;
+
     //осознал что надо считать последовательности для крестиков и ноликов, а не просто самую большую
 
     public TicTacToe (int size) {
@@ -48,8 +51,8 @@ public class TicTacToe {
             maxTac = 0;
     }
     public void clearAll(int size){
-        maxTac =0;
-        maxTic =0;
+        maxTac = 0;
+        maxTic = 0;
         TicTacToe.size = size;
         for (int row = 0; row < size; row++)
             for (int column = 0; column < size; column++)
@@ -85,9 +88,7 @@ public class TicTacToe {
                         column++;
                         row = 0;
                         break;
-                        //нужно закончить цикл на случай когда в след столбце такой же символ как и в конце пред. столбца.
                     }
-                    //нужно закончить цикл на случай когда в след столбце такой же символ как и в конце пред. столбца.}
                 }
             }
             while ((getCell(row, column) != Symbols.Error) && (getCell(row, column) != symbol)) {
@@ -181,5 +182,60 @@ public class TicTacToe {
         if (symbol == Symbols.X)
             return maxTic;
         else return maxTac;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TicTacToe ttt = (TicTacToe) o;
+        //создала идея
+        int check = 0;
+        for (int row = 0; row < size; row++)
+            for (int column = 0; column < size; column++)
+                if (ttt.getCell(row, column).equals(this.getCell(row, column)))
+                    check++;
+        return check == (size * size);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        for (int row = 0; row < size; row++)
+            for (int column = 0; column < size; column++)
+                switch (getCell(row, column)) {
+                    case X:
+                        result+= row*column + 88;
+                        break;
+                    case O:
+                        result+= row*column +48;
+                        break;
+                    case VOID:
+                        result+= row*column +32;
+                        break;
+                }
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (int row = 0; row < size; row++) {
+            for (int column = 0; column < size; column++)
+                switch (getCell(row, column)) {
+                    case X:
+                        result.append("X");
+                        break;
+                    case O:
+                        result.append("O");
+                        break;
+                    case VOID:
+                        result.append(" ");
+                        break;
+                }
+            if (row!=size-1)
+                result.append("\n");
+        }
+        return result.toString();
     }
 }
