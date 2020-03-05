@@ -112,7 +112,7 @@ public class TicTacToe {
     }
 
     public enum Diagonal{
-        left(),right();
+        left(),right()
     }
     /** enum и check позволяют описать 4 возможных состояния в одном методе
      * right check true - направление вправо вниз, считается нижняя часть
