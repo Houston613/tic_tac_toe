@@ -3,14 +3,14 @@ package FieldForTTT;
 import static java.lang.Math.max;
 
 public class TicTacToe {
-    public int size;
+    public static int size;
     private Symbols[][] field;
     int maxTic = 0;
     int maxTac = 0;
     //осознал что надо считать последовательности для крестиков и ноликов, а не просто самую большую
 
     public TicTacToe (int size) {
-        this.size = size;
+        TicTacToe.size = size;
         field = new Symbols[size][size];
         for (int row = 0; row < size; row++)
             for (int column = 0; column < size; column++)
@@ -44,6 +44,16 @@ public class TicTacToe {
 
     public void clear(int row, int column) {
             field[row][column] = Symbols.VOID;
+            maxTic = 0;
+            maxTac = 0;
+    }
+    public void clearAll(int size){
+        maxTac =0;
+        maxTic =0;
+        TicTacToe.size = size;
+        for (int row = 0; row < size; row++)
+            for (int column = 0; column < size; column++)
+                clear(row,column);
     }
     //разделил методы нахождения, а то так не очень удобно все в куче держать
     public void maximum(Symbols symbol, int countOfSymbol){
@@ -51,59 +61,52 @@ public class TicTacToe {
             maxTic = max(maxTic, countOfSymbol);
         if (symbol == Symbols.O)
             maxTac = max(maxTac, countOfSymbol);
-        countOfSymbol = 0;
     }
-
-    public void findMaxVertical(Symbols symbol) {
-        int row = 0;
-        int column = 0;
-        int countOfSymbol = 0;
-
-        while (liteTester(row, column)) {
-            while ((getCell(row, column) != Symbols.Error)&&(getCell(row, column) == symbol)) {
-                row++;
-                countOfSymbol++;
-                if (row == size) {
-                    column++;
-                    row = 0;
-                    break;
-                    //нужно закончить цикл на случай когда в след столбце такой же символ как и в конце пред. столбца.
-                }
-            }
-
-            while ((getCell(row, column) != Symbols.Error)&&(getCell(row, column)!= symbol)) {
-                row++;
-                if (row == size) {
-                    row=0;
-                    column++;
-                }
-            }
-            maximum(symbol,countOfSymbol);
-        }
-    }
-    public void findMaxHorizontal(Symbols symbol) {
+    public void findMaxLine(Symbols symbol,boolean check) {
+        //чек true для горизонтальных линий, иначе для вертикальных
+        //
         int row = 0;
         int column = 0;
         int countOfSymbol = 0;
         while (liteTester(row, column)) {
             while ((getCell(row, column) != Symbols.Error && field[row][column] == symbol)) {
-                column++;
-                countOfSymbol++;
-                if (column == size) {
-                    column = 0;
+                if (check) {
+                    column++;
+                    countOfSymbol++;
+                    if (column == size) {
+                        column = 0;
+                        row++;
+                        break;
+                    }
+                } else {
                     row++;
-                    break;
+                    countOfSymbol++;
+                    if (row == size) {
+                        column++;
+                        row = 0;
+                        break;
+                        //нужно закончить цикл на случай когда в след столбце такой же символ как и в конце пред. столбца.
+                    }
                     //нужно закончить цикл на случай когда в след столбце такой же символ как и в конце пред. столбца.}
                 }
             }
-                while ((getCell(row, column) != Symbols.Error)&&(getCell(row, column) != symbol)) {
+            while ((getCell(row, column) != Symbols.Error) && (getCell(row, column) != symbol)) {
+                if (check) {
                     column++;
                     if (column == size) {
                         row++;
                         column = 0;
                     }
+                } else {
+                    row++;
+                    if (row == size) {
+                        row = 0;
+                        column++;
+                    }
                 }
-            maximum(symbol,countOfSymbol);
+            }
+            maximum(symbol, countOfSymbol);
+            countOfSymbol = 0;
 
         }
     }
@@ -161,13 +164,15 @@ public class TicTacToe {
                 }
             }
             maximum(symbol,countOfSymbol);
+            countOfSymbol = 0;
+
         }
     }
 
     public int findMaxLines(Symbols symbol) {
         if ((symbol == Symbols.X)||(symbol == Symbols.O)) {
-            findMaxVertical(symbol);
-            findMaxHorizontal(symbol);
+            findMaxLine(symbol,true);
+            findMaxLine(symbol,false);
             findMaxDiagonal(symbol,true, Diagonal.left);
             findMaxDiagonal(symbol,true, Diagonal.right);
             findMaxDiagonal(symbol,false, Diagonal.left);
