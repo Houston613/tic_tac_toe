@@ -40,8 +40,8 @@ public class TicTacToe {
         if (getCell(row,column) == Symbols.VOID){
             if (symbol == Symbols.X){
                 add = true;
-                x=column;
-                y=row;
+                x = column;
+                y = row;
                 field[row][column] = Symbols.X;
                 findMaxLine(symbol,false, true);
                 findMaxLine(symbol,true,true);
@@ -170,38 +170,30 @@ public class TicTacToe {
             int row = i;
             if (!check)
                 column = size - 1;//верхний кусок считаеем с правого верхнего угла
-
-            if ((diagonal == Diagonal.left)&&(check)&&(forAdd)){//двигаюсь противоположно тому, что написано выше
-                while ((y<size-1)&&(x<0)) {
-                    x--;
-                    y++;
+            if (forAdd) {
+                column = x;
+                row = y;
+                if ((diagonal == Diagonal.left) && (check)) {//двигаюсь противоположно тому, что написано выше
+                    while ((row < size - 1) && (column < 0)) {
+                        column--;
+                        row++;
+                    }
+                } else if ((!check)&&(diagonal == Diagonal.left)) {
+                    while ((column < size - 1) && (row < 0)) {
+                        column++;
+                        row--;
+                    }
+                } else if ((diagonal == Diagonal.right) && (check)) {
+                    while ((column < 0) && (row < 0)) {
+                        column--;
+                        row--;
+                    }
+                } else if ((!check) &&(diagonal == Diagonal.right)) {
+                    while ((column < size - 1) && (row < size - 1)) {
+                        column++;
+                        row++;
+                    }
                 }
-                row = x;
-                column = y;
-            }
-            else if ((diagonal == Diagonal.left)&&(!check)&&(forAdd)){
-                while ((x<size-1)&&(y<0)){
-                    x++;
-                    y--;
-                }
-                row = x;
-                column= y;
-            }
-            else if ((diagonal == Diagonal.right)&&(check)&&(forAdd)){
-                while ((x<0)&&(y<0)){
-                    x--;
-                    y--;
-                }
-                row = x;
-                column= y;
-            }
-            else if ((diagonal == Diagonal.right)&&(!check)&&(forAdd)){
-                while ((x<size-1)&&(y<size-1)){
-                    x++;
-                    y++;
-                }
-                row = x;
-                column= y;
             }
 
             while (liteTester(row, column)) {
