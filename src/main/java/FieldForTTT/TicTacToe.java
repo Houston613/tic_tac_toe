@@ -1,7 +1,5 @@
 package FieldForTTT;
 
-import java.util.Arrays;
-
 import static java.lang.Math.max;
 
 public class TicTacToe {
@@ -45,9 +43,9 @@ public class TicTacToe {
                 field[row][column] = Symbols.X;
                 findMaxLine(symbol,false, true);
                 findMaxLine(symbol,true,true);
-                findMaxDiagonal(symbol,true,Diagonal.left, true);
                 findMaxDiagonal(symbol,true,Diagonal.right, true);
-                findMaxDiagonal(symbol,false,Diagonal.left, true);
+                findMaxDiagonal(symbol,false,Diagonal.right, true);
+                findMaxDiagonal(symbol,true,Diagonal.left, true);
                 findMaxDiagonal(symbol,false,Diagonal.left, true);
             }
 
@@ -58,9 +56,9 @@ public class TicTacToe {
                 field[row][column] = Symbols.O;
                 findMaxLine(symbol,false, true);
                 findMaxLine(symbol,true,true);
-                findMaxDiagonal(symbol,true,Diagonal.left, true);
                 findMaxDiagonal(symbol,true,Diagonal.right, true);
-                findMaxDiagonal(symbol,false,Diagonal.left, true);
+                findMaxDiagonal(symbol,false,Diagonal.right, true);
+                findMaxDiagonal(symbol,true,Diagonal.left, true);
                 findMaxDiagonal(symbol,false,Diagonal.left, true);
             }
         }
@@ -160,7 +158,6 @@ public class TicTacToe {
      * left check true - направление вправо вверх
     **/
     public void findMaxDiagonal(Symbols symbol, boolean check, Diagonal diagonal,boolean forAdd) {
-
         int countOfSymbol = 0;
         int i = 0;
         //если check true, считаем диагонали нижнего куска
@@ -170,32 +167,34 @@ public class TicTacToe {
             int row = i;
             if (!check)
                 column = size - 1;//верхний кусок считаеем с правого верхнего угла
+
             if (forAdd) {
                 column = x;
                 row = y;
-                if ((diagonal == Diagonal.left) && (check)) {//двигаюсь противоположно тому, что написано выше
-                    while ((row < size - 1) && (column < 0)) {
+
+                if (diagonal == Diagonal.left){
+                    if (check){
+                    while ((row < size - 1) && (column > 0)) {
                         column--;
                         row++;
                     }
-                } else if ((!check)&&(diagonal == Diagonal.left)) {
-                    while ((column < size - 1) && (row < 0)) {
+                } else while ((column < size - 1) && (row > 0)) {
                         column++;
                         row--;
                     }
-                } else if ((diagonal == Diagonal.right) && (check)) {
-                    while ((column < 0) && (row < 0)) {
-                        column--;
-                        row--;
-                    }
-                } else if ((!check) &&(diagonal == Diagonal.right)) {
-                    while ((column < size - 1) && (row < size - 1)) {
+
+                } else if (diagonal == Diagonal.right) {
+                    if (check) {
+                        while ((column > 0) && (row > 0)) {
+                            column--;
+                            row--;
+                        }
+                    } else while ((column < size - 1) && (row < size - 1)) {
                         column++;
                         row++;
                     }
                 }
             }
-
             while (liteTester(row, column)) {
                 while ((getCell(row, column) != Symbols.Error && field[row][column] == symbol)) {
                     countOfSymbol++;
@@ -208,11 +207,12 @@ public class TicTacToe {
                     } else {
                         column--;//влево в любом случае
                         if (diagonal == Diagonal.right)
-                            row--;//вниз
+                            row--;//вверх
                         else if (diagonal == Diagonal.left)
-                            row++;//вверх
+                            row++;//вниз
                     }
                 }
+
                 while ((getCell(row, column) != Symbols.Error && field[row][column] != symbol)) {
                     if (check) {
                         column++; //двигаемся вправо всегда при true
@@ -223,9 +223,9 @@ public class TicTacToe {
                     } else {
                         column--;//влево в любом случае
                         if (diagonal == Diagonal.right)
-                            row--;//вниз
+                            row--;//вверх
                         else if (diagonal == Diagonal.left)
-                            row++;//вверх
+                            row++;//вниз
                     }
                 }
                 maximum(symbol,countOfSymbol);
