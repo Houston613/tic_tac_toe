@@ -100,7 +100,7 @@ class TicTacToeTest {
     void toStringTest(){
         TicTacToe fieldForString = new TicTacToe(2);
         fieldForString.addSymbol(0,0, Symbols.X);
-        assertEquals("X "+"\n"+"  ",fieldForString.toString());
+        assertEquals("X "+System.lineSeparator()+"  ",fieldForString.toString());
     }
     @Test
     void hashCodeTest(){

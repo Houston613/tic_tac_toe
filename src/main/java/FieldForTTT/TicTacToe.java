@@ -5,13 +5,16 @@ import static java.lang.Math.max;
 public class TicTacToe {
     public static int size;
     private Symbols[][] field;
-    int maxTic = 0;
-    int maxTac = 0;
-    int x;
-    int y;
-    //осознал что надо считать последовательности для крестиков и ноликов, а не просто самую большую
+    private int maxTic = 0;
+    private int maxTac = 0;
+    private int x;
+    private int y;
+    private int height;
+    private int width;
 
     public TicTacToe (int size) {
+        if (size<=0)
+            throw new IllegalArgumentException("Размер поля не может быть отрицательным");
         TicTacToe.size = size;
         field = new Symbols[size][size];
         for (int row = 0; row < size; row++)
@@ -29,9 +32,14 @@ public class TicTacToe {
         return (row < size) && (column < size) && (row >= 0) && (column >= 0);
     }
 
-    //тк вы сказали, что надо думатб что мы делаем класс для проекта, добавлю подсчет символов после добавления
-    //ведь в настоящей игре делать надо именно это
-    //можно не проверять все поле, а только по той вертикали/горизонтали/диагонали на которой находится клетка
+    public void findForAdd(Symbols symbol){
+        findMaxLine(symbol,Line.horizontal, true);
+        findMaxLine(symbol,Line.vertical,true);
+        findMaxDiagonal(symbol,Line.leftLow,true);
+        findMaxDiagonal(symbol,Line.leftUp,true);
+        findMaxDiagonal(symbol,Line.rightUp,true);
+        findMaxDiagonal(symbol,Line.rightLow,true);
+    }
 
     public boolean addSymbol(int row, int column, Symbols symbol) {
         boolean add = false;
@@ -41,12 +49,7 @@ public class TicTacToe {
                 x = column;
                 y = row;
                 field[row][column] = Symbols.X;
-                findMaxLine(symbol,false, true);
-                findMaxLine(symbol,true,true);
-                findMaxDiagonal(symbol,true,Diagonal.right, true);
-                findMaxDiagonal(symbol,false,Diagonal.right, true);
-                findMaxDiagonal(symbol,true,Diagonal.left, true);
-                findMaxDiagonal(symbol,false,Diagonal.left, true);
+                findForAdd(symbol);
             }
 
             else if (symbol == Symbols.O) {
@@ -54,12 +57,7 @@ public class TicTacToe {
                 x = column;
                 y = row;
                 field[row][column] = Symbols.O;
-                findMaxLine(symbol,false, true);
-                findMaxLine(symbol,true,true);
-                findMaxDiagonal(symbol,true,Diagonal.right, true);
-                findMaxDiagonal(symbol,false,Diagonal.right, true);
-                findMaxDiagonal(symbol,true,Diagonal.left, true);
-                findMaxDiagonal(symbol,false,Diagonal.left, true);
+                findForAdd(symbol);
             }
         }
         return add;
@@ -93,63 +91,56 @@ public class TicTacToe {
             maxTac = max(maxTac, countOfSymbol);
     }
 
-    public void findMaxLine(Symbols symbol, boolean check, boolean forAdd) {
-        //чек true для горизонтальных линий, иначе для вертикальных
-        //условие line для того чтобы в add использовать методы нахождения макс длинн
-        //если true значит идем по фулл полю, иначе по стрке/линии/диагонали
-        int row = 0;
-        int column = 0;
+    public void changer(Line line) {
+        height += line.h;
+        width += line.w;
+    }
+    public void findMaxLine(Symbols symbol, Line line, boolean forAdd) {
+        height= 0;
+        width = 0;
         int countOfSymbol = 0;
-        if ((forAdd) && (!check))
-            column = x;
-        else if ((check) && (forAdd))
-            row = y;
+        if ((forAdd) && (line == Line.vertical))
+            width = x;
+        else if ((line == Line.horizontal) && (forAdd))
+            height = y;
 
-        while (liteTester(row, column)) {
-            while (getCell(row, column) != Symbols.Error && (getCell(row, column) == symbol)) {
-                if (check) {
-                    column++;
+        while (liteTester(height, width)) {
+            while (getCell(height, width) != Symbols.Error) {
+                if (getCell(height, width) == symbol)
                     countOfSymbol++;
-                    if ((column == size) && (!forAdd)) {
-                        column = 0;
-                        row++;
-                        break;
-                    }
-                } else {
-                    row++;
-                    countOfSymbol++;
-                    if ((row == size) && (!forAdd)) {
-                        column++;
-                        row = 0;
-                        break;
-                    }
+                else if ((getCell(height, width) != symbol)&&(getCell(height, width) != Symbols.Error)) {
+                    maximum(symbol, countOfSymbol);
+                    countOfSymbol = 0;
                 }
-            }
-            while ((getCell(row, column) != Symbols.Error) && (getCell(row, column) != symbol)) {
-                if (check) {
-                    column++;
-                    if ((column == size) && (!forAdd)) {
-                        row++;
-                        column = 0;
-                        break;
-                    }
-                } else {
-                    row++;
-                    if ((row == size) && (!forAdd)) {
-                        row = 0;
-                        column++;
-                        break;
-                    }
+                changer(line);
+                if ((width == size) && (!forAdd)) {//условие перехода на новую строку
+                    width = 0;
+                    height++;
+                    break;
+                } else if ((height == size) && (!forAdd)) {//условие перехода на новую строку
+                    width++;
+                    height = 0;
+                    break;
                 }
             }
             maximum(symbol, countOfSymbol);
             countOfSymbol = 0;
-
         }
     }
 
-    public enum Diagonal{
-        left(),right()
+    public enum Line{
+        //я ведь могу в уже используемый еnum записать значения и ретернить их, как по ссылке ниже
+        //https://stackoverflow.com/questions/14202959/in-java-is-there-a-way-to-define-enum-of-type-char
+        // вместо того чтобы в мапе создавать pair(или что-то другое)
+        //я просто добавлю boolean check в enum
+        horizontal(0,1),vertical(1,0),
+        leftUp(1,-1),leftLow(-1,1),rightUp(-1,-1),rightLow(1,1);
+        private int h;//аналог row
+        private int w;//аналог column
+        Line(int h, int w){
+            this.h = h;
+            this.w = w;
+        }
     }
     /** enum и check позволяют описать 4 возможных состояния в одном методе
      * right check true - направление вправо вниз, считается нижняя часть
@@ -157,82 +148,50 @@ public class TicTacToe {
      * right check false - направление влево вверх - верхняя
      * left check true - направление вправо вверх
     **/
-    public void findMaxDiagonal(Symbols symbol, boolean check, Diagonal diagonal,boolean forAdd) {
+    public void findMaxDiagonal(Symbols symbol, Line diagonal,boolean forAdd) {
         int countOfSymbol = 0;
         int i = 0;
         //если check true, считаем диагонали нижнего куска
         //иначе счиатем диагонали верхнего
-        while (i <= size) {//зачем=то выдумывал счетчик какой-то, если можно просто переменную сделать
-            int column = 0;
-            int row = i;
-            if (!check)
-                column = size - 1;//верхний кусок считаеем с правого верхнего угла
+        while (i <= size) {
+            height = 0;
+            width  = i;
+            if ((diagonal == Line.leftUp)||(diagonal == Line.rightUp))
+                width = size - 1;//верхний кусок считаеем с правого верхнего угла
 
             if (forAdd) {
-                column = x;
-                row = y;
-
-                if (diagonal == Diagonal.left){
-                    if (check){
-                    while ((row < size - 1) && (column > 0)) {
-                        column--;
-                        row++;
+                width = x;
+                height = y;
+                if (diagonal == Line.leftUp)
+                    while ((height < size - 1) && (width > 0)) {
+                        changer(diagonal);
                     }
-                } else while ((column < size - 1) && (row > 0)) {
-                        column++;
-                        row--;
+                else if (diagonal == Line.leftLow)
+                        while ((width < size - 1) && (height > 0)) {
+                            changer(diagonal);
                     }
-
-                } else if (diagonal == Diagonal.right) {
-                    if (check) {
-                        while ((column > 0) && (row > 0)) {
-                            column--;
-                            row--;
+                else if (diagonal == Line.rightUp)
+                        while ((width > 0) && (height > 0)) {
+                            changer(diagonal);
                         }
-                    } else while ((column < size - 1) && (row < size - 1)) {
-                        column++;
-                        row++;
+                else if (diagonal == Line.rightLow)
+                    while ((width < size - 1) && (height < size - 1)) {
+                        changer(diagonal);
                     }
+                break;
                 }
-            }
-            while (liteTester(row, column)) {
-                while ((getCell(row, column) != Symbols.Error && field[row][column] == symbol)) {
+            else
+            while (liteTester(height, width)) {
+                while ((getCell(height, width) != Symbols.Error && field[height][width] == symbol)) {
                     countOfSymbol++;
-                    if (check) {
-                        column++; //двигаемся вправо всегда при true
-                        if (diagonal == Diagonal.right)
-                            row++;//вниз
-                        else if (diagonal == Diagonal.left)
-                            row--;//вверх
-                    } else {
-                        column--;//влево в любом случае
-                        if (diagonal == Diagonal.right)
-                            row--;//вверх
-                        else if (diagonal == Diagonal.left)
-                            row++;//вниз
-                    }
+                    changer(diagonal);
                 }
-
-                while ((getCell(row, column) != Symbols.Error && field[row][column] != symbol)) {
-                    if (check) {
-                        column++; //двигаемся вправо всегда при true
-                        if (diagonal == Diagonal.right)
-                            row++;//вниз
-                        else if (diagonal == Diagonal.left)
-                            row--;//вверх
-                    } else {
-                        column--;//влево в любом случае
-                        if (diagonal == Diagonal.right)
-                            row--;//вверх
-                        else if (diagonal == Diagonal.left)
-                            row++;//вниз
-                    }
+                while ((getCell(height, width) != Symbols.Error && field[height][width] != symbol)) {
+                        changer(diagonal);
                 }
                 maximum(symbol,countOfSymbol);
                 countOfSymbol = 0;
             }
-            if (forAdd)
-                break;
             i++;
         }
     }
@@ -248,12 +207,12 @@ public class TicTacToe {
 
         public void findMaxLinesAll(Symbols symbol) {
         if ((symbol == Symbols.X)||(symbol == Symbols.O)) {
-            findMaxLine(symbol,true, false);
-            findMaxLine(symbol,false, false);
-            findMaxDiagonal(symbol,true, Diagonal.left,false);
-            findMaxDiagonal(symbol,true, Diagonal.right,false);
-            findMaxDiagonal(symbol,false, Diagonal.left,false);
-            findMaxDiagonal(symbol,false, Diagonal.right,false);
+            findMaxLine(symbol,Line.vertical, false);
+            findMaxLine(symbol,Line.horizontal, false);
+            findMaxDiagonal(symbol,Line.leftLow,false);
+            findMaxDiagonal(symbol,Line.leftUp,false);
+            findMaxDiagonal(symbol,Line.rightUp,false);
+            findMaxDiagonal(symbol,Line.rightLow,false);
         } else throw new IllegalArgumentException("Недопустимый символ");
     }
 
@@ -307,7 +266,7 @@ public class TicTacToe {
                         break;
                 }
             if (row!=size-1)
-                result.append("\n");
+                result.append(System.lineSeparator());
         }
         return result.toString();
     }
