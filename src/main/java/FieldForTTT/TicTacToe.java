@@ -180,14 +180,16 @@ public class TicTacToe {
                     }
             }
                 while (liteTester(height, width)) {
-                    while ((getCell(height, width) != Symbols.Error && field[height][width] == symbol)) {
-                        countOfSymbol++;
+                    while (getCell(height, width) != Symbols.Error) {
+                        if (getCell(height, width) == symbol)
+                            countOfSymbol++;
+                        else if ((getCell(height, width) != symbol) && (getCell(height, width) != Symbols.Error)) {
+                            maximum(symbol, countOfSymbol);
+                            countOfSymbol = 0;
+                        }
                         changer(diagonal);
                     }
-                    while ((getCell(height, width) != Symbols.Error && field[height][width] != symbol)) {
-                        changer(diagonal);
-                    }
-                    maximum(symbol,countOfSymbol);
+                    maximum(symbol, countOfSymbol);
                     countOfSymbol = 0;
                 }
                 if (forAdd)
