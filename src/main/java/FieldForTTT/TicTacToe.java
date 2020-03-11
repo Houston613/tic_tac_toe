@@ -64,11 +64,11 @@ public class TicTacToe {
     }
 
     public void clear(int row, int column) {
-            field[row][column] = Symbols.VOID;
-            maxTic = 0;
-            maxTac = 0;
-            findMaxLinesAll(Symbols.X);
-            findMaxLinesAll(Symbols.O);
+        field[row][column] = Symbols.VOID;
+        maxTic = 0;
+        maxTac = 0;
+        findMaxLinesAll(Symbols.X);
+        findMaxLinesAll(Symbols.O);
     }
 
     public void clearAll(int size){
@@ -95,6 +95,7 @@ public class TicTacToe {
         height += line.h;
         width += line.w;
     }
+
     public void findMaxLine(Symbols symbol, Line line, boolean forAdd) {
         height= 0;
         width = 0;
@@ -134,7 +135,7 @@ public class TicTacToe {
         // вместо того чтобы в мапе создавать pair(или что-то другое)
         //я просто добавлю boolean check в enum
         horizontal(0,1),vertical(1,0),
-        leftUp(1,-1),leftLow(-1,1),rightUp(-1,-1),rightLow(1,1);
+        leftUp(-1,1),leftLow(1,-1),rightUp(-1,-1),rightLow(1,1);
         private int h;//аналог row
         private int w;//аналог column
         Line(int h, int w){
@@ -147,65 +148,64 @@ public class TicTacToe {
      * left check false - направление влево вниз
      * right check false - направление влево вверх - верхняя
      * left check true - направление вправо вверх
-    **/
+     **/
     public void findMaxDiagonal(Symbols symbol, Line diagonal,boolean forAdd) {
         int countOfSymbol = 0;
         int i = 0;
         //если check true, считаем диагонали нижнего куска
         //иначе счиатем диагонали верхнего
         while (i <= size) {
-            height = 0;
-            width  = i;
-            if ((diagonal == Line.leftUp)||(diagonal == Line.rightUp))
+            width = 0;
+            height  = i;
+            if ((diagonal == Line.leftLow)||(diagonal == Line.rightUp))
                 width = size - 1;//верхний кусок считаеем с правого верхнего угла
-
             if (forAdd) {
                 width = x;
                 height = y;
                 if (diagonal == Line.leftUp)
                     while ((height < size - 1) && (width > 0)) {
-                        changer(diagonal);
+                        changer(Line.leftLow);
                     }
                 else if (diagonal == Line.leftLow)
-                        while ((width < size - 1) && (height > 0)) {
-                            changer(diagonal);
+                    while ((width < size - 1) && (height > 0)) {
+                        changer(Line.leftUp);
                     }
                 else if (diagonal == Line.rightUp)
-                        while ((width > 0) && (height > 0)) {
-                            changer(diagonal);
-                        }
+                    while ((width < size - 1) && (width < size - 1)) {
+                        changer(Line.rightLow);
+                    }
                 else if (diagonal == Line.rightLow)
-                    while ((width < size - 1) && (height < size - 1)) {
+                    while ((width > 0) && (height > 0)) {
+                        changer(Line.rightUp);
+                    }
+            }
+                while (liteTester(height, width)) {
+                    while ((getCell(height, width) != Symbols.Error && field[height][width] == symbol)) {
+                        countOfSymbol++;
                         changer(diagonal);
                     }
-                break;
-                }
-            else
-            while (liteTester(height, width)) {
-                while ((getCell(height, width) != Symbols.Error && field[height][width] == symbol)) {
-                    countOfSymbol++;
-                    changer(diagonal);
-                }
-                while ((getCell(height, width) != Symbols.Error && field[height][width] != symbol)) {
+                    while ((getCell(height, width) != Symbols.Error && field[height][width] != symbol)) {
                         changer(diagonal);
+                    }
+                    maximum(symbol,countOfSymbol);
+                    countOfSymbol = 0;
                 }
-                maximum(symbol,countOfSymbol);
-                countOfSymbol = 0;
-            }
+                if (forAdd)
+                    break;
             i++;
         }
     }
 
     public int findMaxLines(Symbols symbol) {
         if ((symbol == Symbols.X)||(symbol == Symbols.O)) {
-        if (symbol == Symbols.X)
-            return maxTic;
-        else return maxTac;
+            if (symbol == Symbols.X)
+                return maxTic;
+            else return maxTac;
         }
         else throw new IllegalArgumentException("Недопустимый символ");
     }
 
-        public void findMaxLinesAll(Symbols symbol) {
+    public void findMaxLinesAll(Symbols symbol) {
         if ((symbol == Symbols.X)||(symbol == Symbols.O)) {
             findMaxLine(symbol,Line.vertical, false);
             findMaxLine(symbol,Line.horizontal, false);
