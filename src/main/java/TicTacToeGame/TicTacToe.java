@@ -1,9 +1,9 @@
-package FieldForTTT;
+package TicTacToeGame;
 
 import static java.lang.Math.max;
 
 public class TicTacToe {
-    public static int size;
+    private static int size;
     private Symbols[][] field;
     private int maxTic = 0;
     private int maxTac = 0;
@@ -11,6 +11,10 @@ public class TicTacToe {
     private int y;
     private int height;
     private int width;
+
+    public enum Symbols {
+        X, O, VOID, Error
+    }
 
     public TicTacToe (int size) {
         if (size<=0)
@@ -28,11 +32,13 @@ public class TicTacToe {
         else return Symbols.Error;
     }
 
-    public boolean liteTester(int row, int column) {
+    private boolean liteTester(int row, int column) {
         return (row < size) && (column < size) && (row >= 0) && (column >= 0);
     }
 
-    public void findForAdd(Symbols symbol){
+    private void findForAdd(Symbols symbol, int row, int column ){
+        x = column;
+        y = row;
         findMaxLine(symbol,Line.horizontal, true);
         findMaxLine(symbol,Line.vertical,true);
         findMaxDiagonal(symbol,Line.leftLow,true);
@@ -44,59 +50,54 @@ public class TicTacToe {
     public boolean addSymbol(int row, int column, Symbols symbol) {
         boolean add = false;
         if (getCell(row,column) == Symbols.VOID){
+            add = true;
             if (symbol == Symbols.X){
-                add = true;
-                x = column;
-                y = row;
                 field[row][column] = Symbols.X;
-                findForAdd(symbol);
+                findForAdd(symbol,row,column);
             }
-
             else if (symbol == Symbols.O) {
-                add = true;
-                x = column;
-                y = row;
                 field[row][column] = Symbols.O;
-                findForAdd(symbol);
+                findForAdd(symbol,row,column);
             }
         }
         return add;
     }
 
-    public void clear(int row, int column) {
-        field[row][column] = Symbols.VOID;
-        maxTic = 0;
-        maxTac = 0;
-        findMaxLinesAll(Symbols.X);
-        findMaxLinesAll(Symbols.O);
+    public boolean clear(int row, int column) {
+        if (getCell(row, column)!= Symbols.Error) {
+            field[row][column] = Symbols.VOID;
+            maxTic = 0;
+            maxTac = 0;
+            findMaxLinesAll(Symbols.X);
+            findMaxLinesAll(Symbols.O);
+            return true;
+        }
+        return false;
     }
 
-    public void clearAll(int size){
+    public void clearAll(){
         maxTac = 0;
         maxTic = 0;
-        TicTacToe.size = size;
         for (int row = 0; row < size; row++)
             for (int column = 0; column < size; column++)
-                clear(row,column);
+                field[row][column] = Symbols.VOID;
         findMaxLinesAll(Symbols.X);
         findMaxLinesAll(Symbols.O);
     }
 
-    //разделил методы нахождения, а то так не очень удобно все в куче держать
-
-    public void maximum(Symbols symbol, int countOfSymbol){
+    private void maximum(Symbols symbol, int countOfSymbol){
         if (symbol == Symbols.X)
             maxTic = max(maxTic, countOfSymbol);
         if (symbol == Symbols.O)
             maxTac = max(maxTac, countOfSymbol);
     }
 
-    public void changer(Line line) {
+    private void changer(Line line) {
         height += line.h;
         width += line.w;
     }
 
-    public void findMaxLine(Symbols symbol, Line line, boolean forAdd) {
+    private void findMaxLine(Symbols symbol, Line line, boolean forAdd) {
         height= 0;
         width = 0;
         int countOfSymbol = 0;
@@ -106,7 +107,6 @@ public class TicTacToe {
             height = y;
 
         while (liteTester(height, width)) {
-            while (getCell(height, width) != Symbols.Error) {
                 if (getCell(height, width) == symbol)
                     countOfSymbol++;
                 else if ((getCell(height, width) != symbol)&&(getCell(height, width) != Symbols.Error)) {
@@ -117,23 +117,15 @@ public class TicTacToe {
                 if ((width == size) && (!forAdd)) {//условие перехода на новую строку
                     width = 0;
                     height++;
-                    break;
                 } else if ((height == size) && (!forAdd)) {//условие перехода на новую строку
                     width++;
                     height = 0;
-                    break;
                 }
-            }
             maximum(symbol, countOfSymbol);
-            countOfSymbol = 0;
         }
     }
 
     public enum Line{
-        //я ведь могу в уже используемый еnum записать значения и ретернить их, как по ссылке ниже
-        //https://stackoverflow.com/questions/14202959/in-java-is-there-a-way-to-define-enum-of-type-char
-        // вместо того чтобы в мапе создавать pair(или что-то другое)
-        //я просто добавлю boolean check в enum
         horizontal(0,1),vertical(1,0),
         leftUp(-1,1),leftLow(1,-1),rightUp(-1,-1),rightLow(1,1);
         private int h;//аналог row
@@ -149,7 +141,7 @@ public class TicTacToe {
      * right check false - направление влево вверх - верхняя
      * left check true - направление вправо вверх
      **/
-    public void findMaxDiagonal(Symbols symbol, Line diagonal,boolean forAdd) {
+    private void findMaxDiagonal(Symbols symbol, Line diagonal,boolean forAdd) {
         int countOfSymbol = 0;
         int i = 0;
         //если check true, считаем диагонали нижнего куска
@@ -180,7 +172,6 @@ public class TicTacToe {
                     }
             }
                 while (liteTester(height, width)) {
-                    while (getCell(height, width) != Symbols.Error) {
                         if (getCell(height, width) == symbol)
                             countOfSymbol++;
                         else if ((getCell(height, width) != symbol) && (getCell(height, width) != Symbols.Error)) {
@@ -188,9 +179,7 @@ public class TicTacToe {
                             countOfSymbol = 0;
                         }
                         changer(diagonal);
-                    }
                     maximum(symbol, countOfSymbol);
-                    countOfSymbol = 0;
                 }
                 if (forAdd)
                     break;
@@ -207,7 +196,7 @@ public class TicTacToe {
         else throw new IllegalArgumentException("Недопустимый символ");
     }
 
-    public void findMaxLinesAll(Symbols symbol) {
+    private void findMaxLinesAll(Symbols symbol) {
         if ((symbol == Symbols.X)||(symbol == Symbols.O)) {
             findMaxLine(symbol,Line.vertical, false);
             findMaxLine(symbol,Line.horizontal, false);
